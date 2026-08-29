@@ -71,7 +71,7 @@
     }
 
     .wallet small {
-      opacity: 0.8;
+      opacity: .85;
     }
 
     .balance {
@@ -87,6 +87,7 @@
       padding: 12px 18px;
       border-radius: 10px;
       font-weight: bold;
+      cursor: pointer;
     }
 
     h2 {
@@ -107,7 +108,7 @@
       padding: 25px 15px;
       border-radius: 16px;
       text-align: left;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 3px 12px rgba(0,0,0,.06);
       cursor: pointer;
     }
 
@@ -138,7 +139,7 @@
       border-radius: 14px;
       text-align: center;
       font-weight: bold;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 3px 10px rgba(0,0,0,.05);
     }
 
     .transactions {
@@ -189,11 +190,11 @@
 
     <small>Wallet Balance</small>
 
-    <div class="balance">
+    <div class="balance" id="balance">
       ₦0.00
     </div>
 
-    <button class="fund">
+    <button class="fund" id="fundWallet">
       + Fund Wallet
     </button>
 
@@ -203,16 +204,24 @@
 
   <section class="services">
 
-    <button class="service">
+    <button class="service" id="buyData">
+
       <span>📱</span>
+
       <h3>Buy Data</h3>
+
       <p>MTN, Airtel, GLO & 9mobile</p>
+
     </button>
 
-    <button class="service">
+    <button class="service" id="buyAirtime">
+
       <span>💰</span>
+
       <h3>Buy Airtime</h3>
+
       <p>Recharge any network</p>
+
     </button>
 
   </section>
@@ -248,10 +257,21 @@
     signOut
   } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
+  import {
+    getFirestore,
+    doc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const db = getFirestore();
+
   const userName =
     document.getElementById("userName");
 
-  onAuthStateChanged(auth, (user) => {
+  const balance =
+    document.getElementById("balance");
+
+  onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
 
@@ -263,6 +283,42 @@
     userName.textContent =
       user.displayName || "Customer";
 
+    try {
+
+      const walletRef =
+        doc(db, "wallets", user.uid);
+
+      const walletSnapshot =
+        await getDoc(walletRef);
+
+      if (walletSnapshot.exists()) {
+
+        const wallet =
+          walletSnapshot.data();
+
+        const amount =
+          Number(wallet.balance || 0);
+
+        balance.textContent =
+          "₦" + amount.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+
+      } else {
+
+        balance.textContent = "₦0.00";
+
+      }
+
+    } catch (error) {
+
+      console.error("Wallet error:", error);
+
+      balance.textContent = "₦0.00";
+
+    }
+
   });
 
   document
@@ -272,6 +328,30 @@
       await signOut(auth);
 
       window.location.href = "login.html";
+
+    });
+
+  document
+    .getElementById("buyData")
+    .addEventListener("click", () => {
+
+      window.location.href = "buy-data.html";
+
+    });
+
+  document
+    .getElementById("buyAirtime")
+    .addEventListener("click", () => {
+
+      alert("Airtime service is coming next.");
+
+    });
+
+  document
+    .getElementById("fundWallet")
+    .addEventListener("click", () => {
+
+      alert("Payment gateway will be connected next.");
 
     });
 
