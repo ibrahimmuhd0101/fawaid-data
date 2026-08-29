@@ -9,27 +9,26 @@
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       background: #f5f7f6;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 20px;
     }
 
     .box {
-      background: white;
       width: 100%;
-      max-width: 430px;
+      max-width: 420px;
+      background: white;
       padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 5px 25px rgba(0,0,0,.08);
     }
 
     .logo {
@@ -42,7 +41,6 @@
 
     h1 {
       text-align: center;
-      font-size: 25px;
       margin-bottom: 8px;
     }
 
@@ -63,39 +61,32 @@
       padding: 14px;
       border: 1px solid #ddd;
       border-radius: 10px;
-      font-size: 15px;
+      font-size: 16px;
     }
 
     button {
       width: 100%;
-      margin-top: 25px;
       padding: 15px;
+      margin-top: 25px;
       border: none;
       border-radius: 10px;
       background: #0b8f4d;
       color: white;
       font-size: 16px;
       font-weight: bold;
-      cursor: pointer;
     }
 
     button:disabled {
-      opacity: 0.6;
+      opacity: .6;
     }
 
     #message {
-      margin-top: 18px;
       text-align: center;
+      margin-top: 15px;
       font-size: 14px;
     }
 
-    .login {
-      text-align: center;
-      margin-top: 22px;
-      color: #666;
-    }
-
-    .login a {
+    a {
       color: #0b8f4d;
       font-weight: bold;
       text-decoration: none;
@@ -105,150 +96,177 @@
 
 <body>
 
-  <div class="box">
+<div class="box">
 
-    <div class="logo">FAWAID DATA</div>
+  <div class="logo">FAWAID DATA</div>
 
-    <h1>Create Account</h1>
+  <h1>Create Account</h1>
 
-    <p class="subtitle">
-      Create your FAWAID DATA account
-    </p>
-
-    <form id="registerForm">
-
-      <label for="name">Full Name</label>
-
-      <input
-        id="name"
-        type="text"
-        placeholder="Enter your full name"
-        required
-      >
-
-      <label for="email">Email</label>
-
-      <input
-        id="email"
-        type="email"
-        placeholder="Enter your email"
-        required
-      >
-
-      <label for="password">Password</label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="At least 6 characters"
-        minlength="6"
-        required
-      >
-
-      <button id="registerButton" type="submit">
-        Create Account
-      </button>
-
-    </form>
-
-    <div id="message"></div>
-
-    <div class="login">
-      Already have an account?
-      <a href="login.html">Log In</a>
-    </div>
-
+  <div class="subtitle">
+    Create your account to get started
   </div>
 
-  <script type="module">
+  <form id="registerForm">
 
-    import { auth } from "./firebase.js";
+    <label for="name">Full Name</label>
 
-    import {
-      createUserWithEmailAndPassword,
-      updateProfile
-    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+    <input
+      id="name"
+      type="text"
+      placeholder="Enter your full name"
+      required
+    >
 
-    const form = document.getElementById("registerForm");
-    const message = document.getElementById("message");
-    const button = document.getElementById("registerButton");
+    <label for="email">Email</label>
 
-    form.addEventListener("submit", async (event) => {
+    <input
+      id="email"
+      type="email"
+      placeholder="Enter your email"
+      required
+    >
 
-      event.preventDefault();
+    <label for="password">Password</label>
 
-      const name =
-        document.getElementById("name").value.trim();
+    <input
+      id="password"
+      type="password"
+      placeholder="Minimum 6 characters"
+      minlength="6"
+      required
+    >
 
-      const email =
-        document.getElementById("email").value.trim();
+    <button id="registerButton" type="submit">
+      Create Account
+    </button>
 
-      const password =
-        document.getElementById("password").value;
+  </form>
 
-      message.textContent = "";
-      button.disabled = true;
-      button.textContent = "Creating account...";
+  <div id="message"></div>
 
-      try {
+  <p style="text-align:center;margin-top:20px;">
+    Already have an account?
+    <a href="login.html">Login</a>
+  </p>
 
-        const userCredential =
-          await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
+</div>
 
-        await updateProfile(
-          userCredential.user,
-          {
-            displayName: name
-          }
+<script type="module">
+
+  import { auth } from "./firebase.js";
+
+  import {
+    createUserWithEmailAndPassword,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const db = getFirestore();
+
+  const form = document.getElementById("registerForm");
+  const message = document.getElementById("message");
+  const button = document.getElementById("registerButton");
+
+  form.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    const name =
+      document.getElementById("name").value.trim();
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    button.disabled = true;
+    button.textContent = "Creating account...";
+    message.textContent = "";
+
+    try {
+
+      // Create Firebase Authentication account
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
         );
 
-        message.style.color = "#0b8f4d";
+      const user = userCredential.user;
 
+      // Save display name
+      await updateProfile(user, {
+        displayName: name
+      });
+
+      // Create Firestore user profile
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          uid: user.uid,
+          name: name,
+          email: email,
+          createdAt: serverTimestamp()
+        }
+      );
+
+      message.style.color = "#0b8f4d";
+      message.textContent =
+        "Account created successfully!";
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1200);
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.style.color = "red";
+
+      if (error.code === "auth/email-already-in-use") {
         message.textContent =
-          "Account created successfully!";
-
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1200);
-
-      } catch (error) {
-
-        message.style.color = "red";
-
-        if (error.code === "auth/email-already-in-use") {
-          message.textContent =
-            "This email already has an account.";
-        }
-
-        else if (error.code === "auth/invalid-email") {
-          message.textContent =
-            "Please enter a valid email.";
-        }
-
-        else if (error.code === "auth/weak-password") {
-          message.textContent =
-            "Password must be at least 6 characters.";
-        }
-
-        else {
-          message.textContent =
-            "Registration failed. Please try again.";
-        }
-
-      } finally {
-
-        button.disabled = false;
-        button.textContent = "Create Account";
-
+          "This email already has an account.";
       }
 
-    });
+      else if (error.code === "auth/invalid-email") {
+        message.textContent =
+          "Please enter a valid email.";
+      }
 
-  </script>
+      else if (error.code === "auth/weak-password") {
+        message.textContent =
+          "Password must contain at least 6 characters.";
+      }
+
+      else if (error.code === "permission-denied") {
+        message.textContent =
+          "Firestore permission denied. We need to update the security rules.";
+      }
+
+      else {
+        message.textContent =
+          "Registration failed: " + error.code;
+      }
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "Create Account";
+
+    }
+
+  });
+
+</script>
 
 </body>
 </html>
