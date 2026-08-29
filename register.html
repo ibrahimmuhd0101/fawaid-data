@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Create Account | FAWAID DATA</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7f6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .box {
+      background: white;
+      width: 100%;
+      max-width: 430px;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      text-align: center;
+      color: #0b8f4d;
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #0b8f4d;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #message {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .login {
+      text-align: center;
+      margin-top: 22px;
+      color: #666;
+    }
+
+    .login a {
+      color: #0b8f4d;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+
+    <div class="logo">FAWAID DATA</div>
+
+    <h1>Create Account</h1>
+
+    <p class="subtitle">
+      Create your FAWAID DATA account
+    </p>
+
+    <form id="registerForm">
+
+      <label for="name">Full Name</label>
+
+      <input
+        id="name"
+        type="text"
+        placeholder="Enter your full name"
+        required
+      >
+
+      <label for="email">Email</label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter your email"
+        required
+      >
+
+      <label for="password">Password</label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="At least 6 characters"
+        minlength="6"
+        required
+      >
+
+      <button id="registerButton" type="submit">
+        Create Account
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+    <div class="login">
+      Already have an account?
+      <a href="login.html">Log In</a>
+    </div>
+
+  </div>
+
+  <script type="module">
+
+    import { auth } from "./firebase.js";
+
+    import {
+      createUserWithEmailAndPassword,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+    const form = document.getElementById("registerForm");
+    const message = document.getElementById("message");
+    const button = document.getElementById("registerButton");
+
+    form.addEventListener("submit", async (event) => {
+
+      event.preventDefault();
+
+      const name =
+        document.getElementById("name").value.trim();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      message.textContent = "";
+      button.disabled = true;
+      button.textContent = "Creating account...";
+
+      try {
+
+        const userCredential =
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        await updateProfile(
+          userCredential.user,
+          {
+            displayName: name
+          }
+        );
+
+        message.style.color = "#0b8f4d";
+
+        message.textContent =
+          "Account created successfully!";
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1200);
+
+      } catch (error) {
+
+        message.style.color = "red";
+
+        if (error.code === "auth/email-already-in-use") {
+          message.textContent =
+            "This email already has an account.";
+        }
+
+        else if (error.code === "auth/invalid-email") {
+          message.textContent =
+            "Please enter a valid email.";
+        }
+
+        else if (error.code === "auth/weak-password") {
+          message.textContent =
+            "Password must be at least 6 characters.";
+        }
+
+        else {
+          message.textContent =
+            "Registration failed. Please try again.";
+        }
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent = "Create Account";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
