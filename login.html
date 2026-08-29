@@ -7,42 +7,36 @@
   <title>Login | FAWAID DATA</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
       font-family: Arial, sans-serif;
       background: #f5f7f6;
+      margin: 0;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 20px;
     }
 
     .box {
       background: white;
       width: 100%;
-      max-width: 430px;
+      max-width: 400px;
       padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
     }
 
     .logo {
       text-align: center;
       color: #0b8f4d;
       font-size: 30px;
-      font-weight: 900;
+      font-weight: bold;
       margin-bottom: 10px;
     }
 
     h1 {
       text-align: center;
-      font-size: 25px;
       margin-bottom: 8px;
     }
 
@@ -63,48 +57,29 @@
       padding: 14px;
       border: 1px solid #ddd;
       border-radius: 10px;
-      font-size: 15px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
       width: 100%;
-      margin-top: 25px;
       padding: 15px;
-      border: none;
+      margin-top: 25px;
+      border: 0;
       border-radius: 10px;
       background: #0b8f4d;
       color: white;
       font-size: 16px;
       font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-    }
-
-    .forgot {
-      display: block;
-      text-align: right;
-      margin-top: 12px;
-      color: #0b8f4d;
-      font-size: 14px;
-      text-decoration: none;
     }
 
     #message {
-      margin-top: 18px;
       text-align: center;
+      margin-top: 15px;
       font-size: 14px;
     }
 
-    .register {
-      text-align: center;
-      margin-top: 22px;
-      color: #666;
-    }
-
-    .register a {
+    a {
       color: #0b8f4d;
       font-weight: bold;
       text-decoration: none;
@@ -114,135 +89,127 @@
 
 <body>
 
-  <div class="box">
+<div class="box">
 
-    <div class="logo">FAWAID DATA</div>
+  <div class="logo">FAWAID DATA</div>
 
-    <h1>Welcome Back</h1>
+  <h1>Welcome Back</h1>
 
-    <p class="subtitle">
-      Login to your FAWAID DATA account
-    </p>
-
-    <form id="loginForm">
-
-      <label for="email">Email</label>
-
-      <input
-        id="email"
-        type="email"
-        placeholder="Enter your email"
-        required
-      >
-
-      <label for="password">Password</label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Enter your password"
-        required
-      >
-
-      <a class="forgot" href="#">
-        Forgot Password?
-      </a>
-
-      <button id="loginButton" type="submit">
-        Log In
-      </button>
-
-    </form>
-
-    <div id="message"></div>
-
-    <div class="register">
-      Don't have an account?
-      <a href="register.html">Create Account</a>
-    </div>
-
+  <div class="subtitle">
+    Login to your account
   </div>
 
-  <script type="module">
+  <form id="loginForm">
 
-    import { auth } from "./firebase.js";
+    <label>Email</label>
 
-    import {
-      signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+    <input
+      id="email"
+      type="email"
+      placeholder="Enter your email"
+      required
+    >
 
-    const form =
-      document.getElementById("loginForm");
+    <label>Password</label>
 
-    const message =
-      document.getElementById("message");
+    <input
+      id="password"
+      type="password"
+      placeholder="Enter your password"
+      required
+    >
 
-    const button =
-      document.getElementById("loginButton");
+    <button id="loginButton" type="submit">
+      Log In
+    </button>
 
-    form.addEventListener("submit", async (event) => {
+  </form>
 
-      event.preventDefault();
+  <div id="message"></div>
 
-      const email =
-        document.getElementById("email").value.trim();
+  <p style="text-align:center; margin-top:20px;">
+    Don't have an account?
+    <a href="register.html">Create Account</a>
+  </p>
 
-      const password =
-        document.getElementById("password").value;
+</div>
 
-      message.textContent = "";
+<script type="module">
 
-      button.disabled = true;
-      button.textContent = "Logging in...";
+  import { auth } from "./firebase.js";
 
-      try {
+  import {
+    signInWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+  const form = document.getElementById("loginForm");
+  const message = document.getElementById("message");
+  const button = document.getElementById("loginButton");
 
-        message.style.color = "#0b8f4d";
+  form.addEventListener("submit", async function(event) {
 
+    event.preventDefault();
+
+    const email = document
+      .getElementById("email")
+      .value
+      .trim();
+
+    const password = document
+      .getElementById("password")
+      .value;
+
+    button.disabled = true;
+    button.textContent = "Logging in...";
+    message.textContent = "";
+
+    try {
+
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      message.style.color = "#0b8f4d";
+      message.textContent = "Login successful!";
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+
+      console.log(error);
+
+      message.style.color = "red";
+
+      if (error.code === "auth/invalid-credential") {
         message.textContent =
-          "Login successful!";
-
-        setTimeout(() => {
-
-          window.location.href = "window.location.href = "dashboard.html";
-
-        }, 800);
-
-      } catch (error) {
-
-        message.style.color = "red";
-
-        if (
-          error.code ===
-          "auth/invalid-credential"
-        ) {
-
-          message.textContent =
-            "Incorrect email or password.";
-
-        } else {
-
-          message.textContent =
-            "Login failed. Please try again.";
-
-        }
-
-      } finally {
-
-        button.disabled = false;
-        button.textContent = "Log In";
-
+          "Email or password is incorrect.";
       }
 
-    });
+      else if (error.code === "auth/user-disabled") {
+        message.textContent =
+          "This account has been disabled.";
+      }
 
-  </script>
+      else if (error.code === "auth/too-many-requests") {
+        message.textContent =
+          "Too many attempts. Please try again later.";
+      }
+
+      else {
+        message.textContent =
+          "Login error: " + error.code;
+      }
+
+    }
+
+    button.disabled = false;
+    button.textContent = "Log In";
+
+  });
+
+</script>
 
 </body>
 </html>
