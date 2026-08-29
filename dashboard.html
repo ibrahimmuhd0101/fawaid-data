@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Dashboard | FAWAID DATA</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7f6;
+      color: #111;
+    }
+
+    header {
+      background: #0b8f4d;
+      color: white;
+      padding: 18px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .logout {
+      border: none;
+      background: white;
+      color: #0b8f4d;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 25px 6%;
+    }
+
+    .welcome {
+      margin-bottom: 22px;
+    }
+
+    .welcome h1 {
+      font-size: 26px;
+    }
+
+    .welcome p {
+      color: #777;
+      margin-top: 7px;
+    }
+
+    .wallet {
+      background: #0b8f4d;
+      color: white;
+      padding: 25px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+    }
+
+    .wallet small {
+      opacity: 0.8;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 8px 0 18px;
+    }
+
+    .fund {
+      background: white;
+      color: #0b8f4d;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .service {
+      background: white;
+      border: none;
+      padding: 25px 15px;
+      border-radius: 16px;
+      text-align: left;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+
+    .service span {
+      font-size: 30px;
+    }
+
+    .service h3 {
+      margin-top: 12px;
+    }
+
+    .service p {
+      color: #777;
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .networks {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .network {
+      background: white;
+      padding: 18px 8px;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .transactions {
+      background: white;
+      padding: 22px;
+      border-radius: 16px;
+      color: #777;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .networks {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo">
+    FAWAID DATA
+  </div>
+
+  <button class="logout" id="logout">
+    Logout
+  </button>
+
+</header>
+
+<main>
+
+  <section class="welcome">
+
+    <h1>
+      Welcome, <span id="userName">Customer</span> 👋
+    </h1>
+
+    <p>
+      Manage your data, airtime and wallet.
+    </p>
+
+  </section>
+
+  <section class="wallet">
+
+    <small>Wallet Balance</small>
+
+    <div class="balance">
+      ₦0.00
+    </div>
+
+    <button class="fund">
+      + Fund Wallet
+    </button>
+
+  </section>
+
+  <h2>Quick Services</h2>
+
+  <section class="services">
+
+    <button class="service">
+      <span>📱</span>
+      <h3>Buy Data</h3>
+      <p>MTN, Airtel, GLO & 9mobile</p>
+    </button>
+
+    <button class="service">
+      <span>💰</span>
+      <h3>Buy Airtime</h3>
+      <p>Recharge any network</p>
+    </button>
+
+  </section>
+
+  <h2>Networks</h2>
+
+  <section class="networks">
+
+    <div class="network">🟡<br>MTN</div>
+
+    <div class="network">🔴<br>Airtel</div>
+
+    <div class="network">🟢<br>GLO</div>
+
+    <div class="network">🔵<br>9mobile</div>
+
+  </section>
+
+  <h2>Recent Transactions</h2>
+
+  <section class="transactions">
+    No transactions yet.
+  </section>
+
+</main>
+
+<script type="module">
+
+  import { auth } from "./firebase.js";
+
+  import {
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+  const userName =
+    document.getElementById("userName");
+
+  onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+      window.location.href = "login.html";
+
+      return;
+    }
+
+    userName.textContent =
+      user.displayName || "Customer";
+
+  });
+
+  document
+    .getElementById("logout")
+    .addEventListener("click", async () => {
+
+      await signOut(auth);
+
+      window.location.href = "login.html";
+
+    });
+
+</script>
+
+</body>
+</html>
